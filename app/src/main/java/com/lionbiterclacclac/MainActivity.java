@@ -56,7 +56,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.play) {
-
+            onPlayClick();
         } else if (view.getId() == R.id.settings) {
             onSettingsClick();
         } else if (view.getId() == R.id.records) {
@@ -64,6 +64,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         } else {
             Log.d(TAG, "Unimplemented call");
         }
+    }
+
+    private void onPlayClick() {
+        spController.play(Constants.BUTTON);
     }
 
     private void onSettingsClick() {

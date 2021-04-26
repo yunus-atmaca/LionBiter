@@ -1,6 +1,10 @@
 package com.lionbiterclacclac;
 
+import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -82,7 +86,7 @@ public class Settings extends DialogFragment implements View.OnClickListener {
         root.findViewById(R.id.lan_left).setOnClickListener(this);
         root.findViewById(R.id.lan_right).setOnClickListener(this);
 
-        soundButton =root.findViewById(R.id.soundButton);
+        soundButton = root.findViewById(R.id.soundButton);
         soundButton.setOnClickListener(this);
         vibroButton = root.findViewById(R.id.vibroButton);
         vibroButton.setOnClickListener(this);
@@ -126,28 +130,41 @@ public class Settings extends DialogFragment implements View.OnClickListener {
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.back) {
+            spController.play(Constants.BUTTON);
+
             dismiss();
             onDestroy();
         } else if (view.getId() == R.id.lan_left) {
+            spController.play(Constants.BUTTON);
+
             onSwitchLanguage();
         } else if (view.getId() == R.id.lan_right) {
+            spController.play(Constants.BUTTON);
+
             onSwitchLanguage();
         } else if (view.getId() == R.id.soundButton) {
             soundClicked();
         } else if (view.getId() == R.id.vibroButton) {
+            spController.play(Constants.BUTTON);
+
             vibroClicked();
         } else {
             Log.d(TAG, "Unimplemented call");
         }
     }
 
-    private void soundClicked(){
+    private void soundClicked() {
         if (soundOn) {
+            spController.releaseSP();
+
             soundOn = false;
             soundButton.setImageResource(R.drawable.ic_switch_off);
             soundText.setTextColor(ContextCompat.getColor(getContext(), R.color.onColor));
             soundIcon.setImageResource(R.drawable.ic_sound_off);
         } else {
+            spController = SPController.getInstance(getContext());
+            spController.setBackgroundMusic(true);
+
             soundOn = true;
             soundButton.setImageResource(R.drawable.ic_switch_on);
             soundText.setTextColor(ContextCompat.getColor(getContext(), R.color.white));
@@ -155,7 +172,7 @@ public class Settings extends DialogFragment implements View.OnClickListener {
         }
     }
 
-    private void vibroClicked(){
+    private void vibroClicked() {
         if (vibroOn) {
             vibroOn = false;
             vibroButton.setImageResource(R.drawable.ic_switch_off);
@@ -166,6 +183,17 @@ public class Settings extends DialogFragment implements View.OnClickListener {
             vibroButton.setImageResource(R.drawable.ic_switch_on);
             vibroText.setTextColor(ContextCompat.getColor(getContext(), R.color.white));
             vibroIcon.setImageResource(R.drawable.ic_vibro);
+
+            vibrate();
+        }
+    }
+
+    private void vibrate() {
+        Vibrator v = (Vibrator) getActivity().getSystemService(Context.VIBRATOR_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            v.vibrate(VibrationEffect.createOneShot(500, VibrationEffect.DEFAULT_AMPLITUDE));
+        } else {
+            v.vibrate(500);
         }
     }
 

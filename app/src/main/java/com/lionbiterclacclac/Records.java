@@ -57,6 +57,7 @@ public class Records extends DialogFragment implements View.OnClickListener, Ale
     }
 
     private void init() {
+        spController = SPController.getInstance(getContext());
 
         root.findViewById(R.id.delete).setOnClickListener(this);
         root.findViewById(R.id.backRecord).setOnClickListener(this);
@@ -86,8 +87,12 @@ public class Records extends DialogFragment implements View.OnClickListener, Ale
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.delete) {
+            spController.play(Constants.BUTTON);
+
             onDeleteClick();
         } else if (view.getId() == R.id.backRecord) {
+            spController.play(Constants.BUTTON);
+
             dismiss();
             onDestroy();
         } else {

@@ -12,6 +12,9 @@ import android.widget.TextView;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
+import com.lionbiterclacclac.utils.Constants;
+import com.lionbiterclacclac.utils.SPController;
+
 import java.util.Objects;
 
 public class Alert extends DialogFragment implements View.OnClickListener {
@@ -19,9 +22,11 @@ public class Alert extends DialogFragment implements View.OnClickListener {
     private static final String TAG = "Alert-Fragment";
 
     private final AlertListener listener;
+    SPController spController;
 
     public Alert(AlertListener listener) {
         this.listener = listener;
+        spController = SPController.getInstance(getContext());
     }
 
     @Override
@@ -66,6 +71,8 @@ public class Alert extends DialogFragment implements View.OnClickListener {
     }
 
     private void yesClicked() {
+        spController.play(Constants.BUTTON);
+
         listener.onModalResult(true);
 
         dismiss();
@@ -73,6 +80,8 @@ public class Alert extends DialogFragment implements View.OnClickListener {
     }
 
     private void noClicked() {
+        spController.play(Constants.BUTTON);
+
         listener.onModalResult(false);
 
         dismiss();
