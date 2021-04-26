@@ -6,7 +6,7 @@ public class Constants {
     public static final String PREFERENCE_NAME = "LionBitter";
 
     public static final String KEY_SOUND = "Sound";
-    public static final String KEY_MUSIC = "Music";
+    public static final String KEY_VIBRO = "Vibro";
     public static final String KEY_LANGUAGE = "Language";
 
 

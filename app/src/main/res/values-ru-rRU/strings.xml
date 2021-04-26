@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Lion Biter</string>
+    <string name="sound">Звук</string>
+    <string name="vibro">Вибро</string>
+    <string name="lan">Язык</string>
+    <string name="lanText">Pyc</string>
+    <string name="result">Результаты</string>
+    <string name="yourScore">Ваш счет</string>
+    <string name="alertText">Вы хотите удалить текущие результаты?</string>
+    <string name="score">Счет</string>
+</resources>

@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">Lion Biter</string>
+    <string name="sound">Sound</string>
+    <string name="vibro">Vibro</string>
+    <string name="lan">Language</string>
+    <string name="lanText">En</string>
+    <string name="result">Result</string>
+    <string name="yourScore">Your score</string>
+    <string name="alertText">Do you want to delete the current results?</string>
+    <string name="score">Score</string>
 </resources>

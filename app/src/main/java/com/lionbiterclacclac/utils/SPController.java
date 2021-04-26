@@ -18,15 +18,11 @@ public class SPController implements SoundPool.OnLoadCompleteListener {
     private boolean isBackgroundPlaying;
     private boolean isLoaded;
 
-    private boolean musicOn;
     private boolean soundOn;
 
-    private Context context;
+    private final Context context;
 
     private SPController(Context context){
-
-        Log.d(TAG, "SPController -CONS");
-        musicOn = SharedValues.getBoolean(context, Constants.KEY_MUSIC, true);
         soundOn = SharedValues.getBoolean(context, Constants.KEY_SOUND, true);
         isBackgroundPlaying = false;
         isLoaded = true;
@@ -65,7 +61,7 @@ public class SPController implements SoundPool.OnLoadCompleteListener {
     public void setBackgroundMusic(boolean music) {
         if(sp == null){
             initializeSP();
-            musicOn = music;
+            soundOn = music;
             return;
         }
 
@@ -78,13 +74,13 @@ public class SPController implements SoundPool.OnLoadCompleteListener {
                 backgroundMusic = sp.play(background, 1, 1, 0, -1, 1);
             }
 
-            musicOn = true;
+            soundOn = true;
         } else {
             if(isBackgroundPlaying){
                 isBackgroundPlaying = false;
                 sp.stop(backgroundMusic);
             }
-            musicOn = false;
+            soundOn = false;
         }
     }
 
@@ -132,9 +128,8 @@ public class SPController implements SoundPool.OnLoadCompleteListener {
     public void onLoadComplete(SoundPool soundPool, int i, int i1) {
         if(i == background){
             isLoaded = true;
-            if(musicOn){
+            if(soundOn){
                 if(!isBackgroundPlaying) {
-                    Log.d(TAG, "onLoadComplete-backgroundMusic");
                     isBackgroundPlaying = true;
                     backgroundMusic = sp.play(background, 1, 1, 0, -1, 1);
                 }

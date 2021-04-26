@@ -24,13 +24,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        SystemUtils.enableFullScreenUI(this);
+        //SystemUtils.enableFullScreenUI(this);
         setContentView(R.layout.activity_main);
 
         init();
     }
 
     private void init() {
+        firstInit = true;
 
         String lan = SharedValues.getString(getApplicationContext(), Constants.KEY_LANGUAGE, Constants.LAN_ENG);
         I18n.loadLanguage(this, lan);
@@ -40,7 +41,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         findViewById(R.id.records).setOnClickListener(this);
 
         onStartGame = false;
-        firstInit = true;
     }
 
     @Override
@@ -48,7 +48,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if(view.getId() == R.id.play){
 
         }else if(view.getId() == R.id.settings){
-
+            onSettingsClick();
         }else if(view.getId() == R.id.records){
 
         }else {
@@ -59,8 +59,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void onSettingsClick() {
         spController.play(Constants.BUTTON);
 
-        //Settings settingsFrag = new Settings();
-        //settingsFrag.show(getSupportFragmentManager(), "Setting-Page");
+        Settings settingsFrag = new Settings();
+        settingsFrag.show(getSupportFragmentManager(), "Setting-Page");
     }
 
     @Override
@@ -91,7 +91,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             firstInit = false;
             spController = SPController.getInstance(getApplicationContext());
         }else{
-            boolean music = SharedValues.getBoolean(this, Constants.KEY_MUSIC, true);
+            boolean music = SharedValues.getBoolean(this, Constants.KEY_SOUND, true);
             spController.setBackgroundMusic(music);
         }
 
