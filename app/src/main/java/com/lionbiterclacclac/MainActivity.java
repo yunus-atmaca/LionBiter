@@ -2,6 +2,7 @@ package com.lionbiterclacclac;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -68,6 +69,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void onPlayClick() {
         spController.play(Constants.BUTTON);
+        onStartGame = true;
+        Intent myIntent = new Intent(MainActivity.this, Game.class);
+        MainActivity.this.startActivity(myIntent);
     }
 
     private void onSettingsClick() {
