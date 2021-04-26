@@ -9,4 +9,5 @@
     <color name="white">#FFFFFFFF</color>
 
     <color name="onColor">#6B747D</color>
+    <color name="alertBack">#4D000000</color>
 </resources>

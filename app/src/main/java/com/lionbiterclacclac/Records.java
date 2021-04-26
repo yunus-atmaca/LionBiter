@@ -15,7 +15,7 @@ import com.lionbiterclacclac.utils.Constants;
 import com.lionbiterclacclac.utils.SPController;
 import com.lionbiterclacclac.utils.SharedValues;
 
-public class Records extends DialogFragment implements View.OnClickListener {
+public class Records extends DialogFragment implements View.OnClickListener, Alert.AlertListener {
 
     private static final String TAG = "Records-Fragment";
 
@@ -86,13 +86,18 @@ public class Records extends DialogFragment implements View.OnClickListener {
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.delete) {
-            removeScores();
+            onDeleteClick();
         } else if (view.getId() == R.id.backRecord) {
             dismiss();
             onDestroy();
         } else {
             Log.d(TAG, "Unimplemented call");
         }
+    }
+
+    private void onDeleteClick(){
+        Alert alert = new Alert(this);
+        alert.show(getChildFragmentManager(), "Alert-View");
     }
 
     private void removeScores(){
@@ -108,4 +113,10 @@ public class Records extends DialogFragment implements View.OnClickListener {
         score3Text.setText(String.valueOf(0));
     }
 
+    @Override
+    public void onModalResult(boolean res) {
+        if(res){
+            removeScores();
+        }
+    }
 }
