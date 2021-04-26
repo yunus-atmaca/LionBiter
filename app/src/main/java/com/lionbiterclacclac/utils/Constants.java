@@ -9,6 +9,9 @@ public class Constants {
     public static final String KEY_VIBRO = "Vibro";
     public static final String KEY_LANGUAGE = "Language";
 
+    public static final String KEY_SCORE_1 = "Score1";
+    public static final String KEY_SCORE_2 = "Score2";
+    public static final String KEY_SCORE_3 = "Score3";
 
     public static final String LAN_ENG = "eng";
     public static final String LAN_RU = "ru";

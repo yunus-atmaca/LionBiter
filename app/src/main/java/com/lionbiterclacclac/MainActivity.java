@@ -45,13 +45,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View view) {
-        if(view.getId() == R.id.play){
+        if (view.getId() == R.id.play) {
 
-        }else if(view.getId() == R.id.settings){
+        } else if (view.getId() == R.id.settings) {
             onSettingsClick();
-        }else if(view.getId() == R.id.records){
-
-        }else {
+        } else if (view.getId() == R.id.records) {
+            onRecordClick();
+        } else {
             Log.d(TAG, "Unimplemented call");
         }
     }
@@ -61,6 +61,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         Settings settingsFrag = new Settings();
         settingsFrag.show(getSupportFragmentManager(), "Setting-Page");
+    }
+
+    private void onRecordClick() {
+        spController.play(Constants.BUTTON);
+
+        Records records = new Records();
+        records.show(getSupportFragmentManager(), "Record-Page");
     }
 
     @Override
@@ -74,9 +81,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     protected void onPause() {
-        if(onStartGame){
+        if (onStartGame) {
 
-        }else{
+        } else {
             spController.releaseSP();
         }
 
@@ -87,10 +94,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     protected void onResume() {
         onStartGame = false;
 
-        if(firstInit){
+        if (firstInit) {
             firstInit = false;
             spController = SPController.getInstance(getApplicationContext());
-        }else{
+        } else {
             boolean music = SharedValues.getBoolean(this, Constants.KEY_SOUND, true);
             spController.setBackgroundMusic(music);
         }
