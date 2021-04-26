@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 
 import com.lionbiterclacclac.utils.Constants;
 import com.lionbiterclacclac.utils.I18n;
@@ -12,9 +13,11 @@ import com.lionbiterclacclac.utils.SPController;
 import com.lionbiterclacclac.utils.SharedValues;
 import com.lionbiterclacclac.utils.SystemUtils;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, Settings.SettingsListener {
 
     private static final String TAG = "Main-Activity";
+
+    private ImageView play, settings, records;
 
     private boolean onStartGame;
 
@@ -36,9 +39,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         String lan = SharedValues.getString(getApplicationContext(), Constants.KEY_LANGUAGE, Constants.LAN_ENG);
         I18n.loadLanguage(this, lan);
 
-        findViewById(R.id.play).setOnClickListener(this);
-        findViewById(R.id.settings).setOnClickListener(this);
-        findViewById(R.id.records).setOnClickListener(this);
+        play = findViewById(R.id.play);
+        play.setOnClickListener(this);
+
+        settings = findViewById(R.id.settings);
+        settings.setOnClickListener(this);
+
+        records = findViewById(R.id.records);
+        records.setOnClickListener(this);
+
+        onLanguageChanged(lan);
 
         onStartGame = false;
     }
@@ -59,7 +69,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void onSettingsClick() {
         spController.play(Constants.BUTTON);
 
-        Settings settingsFrag = new Settings();
+        Settings settingsFrag = new Settings(this);
         settingsFrag.show(getSupportFragmentManager(), "Setting-Page");
     }
 
@@ -103,5 +113,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
 
         super.onResume();
+    }
+
+    @Override
+    public void onLanguageChanged(String lan) {
+        play.setImageResource(lan.equals(Constants.LAN_ENG) ? R.drawable.play : R.drawable.play_ru);
+        settings.setImageResource(lan.equals(Constants.LAN_ENG) ? R.drawable.settings : R.drawable.settings_ru);
+        records.setImageResource(lan.equals(Constants.LAN_ENG) ? R.drawable.records : R.drawable.records_ru);
     }
 }

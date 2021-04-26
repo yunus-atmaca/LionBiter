@@ -42,6 +42,12 @@ public class Settings extends DialogFragment implements View.OnClickListener {
 
     SPController spController;
 
+    private final SettingsListener listener;
+
+    public Settings(SettingsListener listener) {
+        this.listener = listener;
+    }
+
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
@@ -169,15 +175,14 @@ public class Settings extends DialogFragment implements View.OnClickListener {
 
         if (lan.equals(Constants.LAN_ENG)) {
             lan = Constants.LAN_RU;
-
             I18n.loadLanguage(getActivity(), Constants.LAN_RU);
         } else {
             lan = Constants.LAN_ENG;
-
             I18n.loadLanguage(getActivity(), Constants.LAN_ENG);
         }
 
         setUIAccordingToLan();
+        this.listener.onLanguageChanged(lan);
     }
 
     @Override
@@ -192,5 +197,9 @@ public class Settings extends DialogFragment implements View.OnClickListener {
         SharedValues.setString(getContext(), Constants.KEY_LANGUAGE, lan);
 
         super.onDestroy();
+    }
+
+    public interface SettingsListener {
+        void onLanguageChanged(String lan);
     }
 }
