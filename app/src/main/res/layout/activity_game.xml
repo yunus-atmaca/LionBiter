@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:background="@drawable/background"
     android:layout_height="match_parent"
+    android:id="@+id/root"
     tools:context=".Game">
 
     <androidx.appcompat.widget.LinearLayoutCompat
@@ -12,6 +13,7 @@
         android:layout_alignParentEnd="true"
         android:layout_marginTop="44dp"
         android:orientation="horizontal"
+        android:id="@+id/scoreTable"
         android:layout_marginEnd="16dp"
         android:paddingHorizontal="4dp"
         android:background="@drawable/ic_score_back"
@@ -48,18 +50,21 @@
 
     <ImageView
         android:layout_width="wrap_content"
-        android:src="@drawable/lion_open"
+        android:src="@drawable/lion_close"
+        android:id="@+id/lion"
         android:layout_centerHorizontal="true"
         android:layout_alignParentBottom="true"
         android:layout_height="wrap_content"/>
 
     <ImageView
-        android:layout_width="wrap_content"
-        android:src="@drawable/ic_boom"
-        android:layout_centerHorizontal="true"
+        android:id="@+id/lion_mouth"
+        android:layout_width="110dp"
+        android:layout_height="110dp"
         android:layout_alignParentBottom="true"
-        android:layout_marginBottom="96dp"
-        android:layout_height="wrap_content"/>
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="85dp"
+        android:src="@drawable/ic_boom"
+        android:visibility="invisible" />
 
     <androidx.appcompat.widget.LinearLayoutCompat
         android:layout_width="match_parent"

@@ -21,4 +21,7 @@ public class Constants {
     public static final int BITE_BALL = R.raw.bite_ball;
     public static final int GAME_OVER = R.raw.game_over;
     public static final int CLOSE_MOUTH = R.raw.close_mouth;
+
+    public static final String BOMB = "Bomb";
+    public static final String BALL = "Ball";
 }

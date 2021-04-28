@@ -155,6 +155,7 @@ public class Settings extends DialogFragment implements View.OnClickListener {
 
     private void soundClicked() {
         if (soundOn) {
+            spController.setSoundOn(false);
             spController.releaseSP();
 
             soundOn = false;
@@ -163,6 +164,7 @@ public class Settings extends DialogFragment implements View.OnClickListener {
             soundIcon.setImageResource(R.drawable.ic_sound_off);
         } else {
             spController = SPController.getInstance(getContext());
+            spController.setSoundOn(true);
             spController.setBackgroundMusic(true);
 
             soundOn = true;
