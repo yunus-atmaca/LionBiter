@@ -6,6 +6,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
+import static com.lionbiterclacclac.Game.isLongPressed;
 import static com.lionbiterclacclac.Game.isMouthOpened;
 
 public class AnimUpdateListener implements ValueAnimator.AnimatorUpdateListener, Animator.AnimatorListener {
@@ -35,35 +36,28 @@ public class AnimUpdateListener implements ValueAnimator.AnimatorUpdateListener,
         float value = (float) valueAnimator.getAnimatedValue();
 
         if (value < position && value > position - 100) {
-            if (!isInFirstIf) {
-                isInFirstIf = true;
-                if (!isMouthOpened) {
-                    if (createdView.getName().equals(Constants.BOMB)) {
+            if (!isMouthOpened && isLongPressed) {
+                if (createdView.getName().equals(Constants.BOMB)) {
+                    if (!isInFirstIf) {
+                        isInFirstIf = true;
                         Log.d("MY-LISTENER", "BOUNCE: " + createdView.getName());
                         ImageView imageView = createdView.getView();
                         valueAnimator.cancel();
                         this.listener.onBounceBomb(imageView);
                     }
-                } else {
-                    if (!isMouthOpen)
-                        isMouthOpen = true;
                 }
             }
         }
 
-        if (value < position && value > position - 300) {
-            if (isMouthOpened) {
-                if (!isMouthOpen)
-                    isMouthOpen = true;
-            }
-
+        if(value < position && value > position - 200){
+            if (!isMouthOpen && isMouthOpened)
+                isMouthOpen = true;
         }
 
         if (value >= position && value <= position + 300) {
-
-            if (!isInSecondIf) {
-                isInSecondIf = true;
-                if (!isMouthOpened && isMouthOpen) {
+            if (!isMouthOpened && isMouthOpen) {
+                if (!isInSecondIf) {
+                    isInSecondIf = true;
                     ImageView imageView = createdView.getView();
                     if (createdView.getName().equals(Constants.BOMB)) {
                         Log.d("MY-LISTENER", "GAME OVER - BOMB: " + createdView.getName());
@@ -78,11 +72,15 @@ public class AnimUpdateListener implements ValueAnimator.AnimatorUpdateListener,
             }
         }
 
-        if (value > position + 400) {
+        if (value > position + 300) {
             if (!isInThirdIf) {
                 isInThirdIf = true;
                 Log.d("MY-LISTENER", "GAME-OVER: " + createdView.getName());
-                this.listener.onGameOver(createdView.getView(), false);
+                if (createdView.getName().equals(Constants.BOMB)) {
+                    this.listener.onGameOver(createdView.getView(), true);
+                } else {
+                    this.listener.onGameOver(createdView.getView(), false);
+                }
             }
         }
     }

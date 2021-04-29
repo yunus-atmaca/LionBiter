@@ -3,19 +3,12 @@ package com.lionbiterclacclac;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.LinearLayoutCompat;
 
-import android.animation.Animator;
 import android.animation.ObjectAnimator;
-import android.animation.ValueAnimator;
-import android.graphics.Rect;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
-import android.view.ViewGroup;
-import android.view.ViewTreeObserver;
-import android.view.Window;
 import android.view.animation.Animation;
 import android.view.animation.TranslateAnimation;
 import android.widget.ImageView;
@@ -25,18 +18,20 @@ import android.widget.TextView;
 import com.lionbiterclacclac.utils.AnimUpdateListener;
 import com.lionbiterclacclac.utils.Constants;
 import com.lionbiterclacclac.utils.CreatedView;
+import com.lionbiterclacclac.utils.GestureHandler;
 import com.lionbiterclacclac.utils.SPController;
 import com.lionbiterclacclac.utils.SharedValues;
-import com.lionbiterclacclac.utils.TouchListener;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.Queue;
 import java.util.Random;
 
-public class Game extends AppCompatActivity implements View.OnClickListener,
+public class Game extends AppCompatActivity implements
+        View.OnClickListener,
         Animation.AnimationListener,
-        TouchListener.onTouchListener, AnimUpdateListener.GameListener {
+        AnimUpdateListener.GameListener,
+        GestureHandler.OnTouchListener {
 
     private static final String TAG = "Game-Activity";
 
@@ -59,6 +54,8 @@ public class Game extends AppCompatActivity implements View.OnClickListener,
 
     private float toValue;
     public static boolean isMouthOpened;
+    public static boolean isLongPressed;
+
     private ArrayList<CreatedView> createdViews;
     private Queue<ImageView> imagesWillBeDeleted;
 
@@ -77,7 +74,7 @@ public class Game extends AppCompatActivity implements View.OnClickListener,
 
     private void init() {
         root = findViewById(R.id.root);
-        root.setOnTouchListener(new TouchListener(this));
+        root.setOnTouchListener(new GestureHandler(this, this));
         handler = new Handler();
 
         isMouthOpened = false;
@@ -210,11 +207,13 @@ public class Game extends AppCompatActivity implements View.OnClickListener,
             }
         } catch (Exception ignored) {
         }
-
     }
 
     private void onGameOver() {
         try {
+            setScoreToApp();
+            lion.setImageResource(R.drawable.lion_close);
+            yourScoreText.setText(getString(R.string.yourScore) + ": " + scoreText.getText());
             lion.setVisibility(View.GONE);
             lionMouth.setVisibility(View.GONE);
             scoreTable.setVisibility(View.GONE);
@@ -263,18 +262,6 @@ public class Game extends AppCompatActivity implements View.OnClickListener,
 
     }
 
-    @Override
-    public void onPressed() {
-        isMouthOpened = true;
-        lion.setImageResource(R.drawable.lion_open);
-    }
-
-    @Override
-    public void onReleased() {
-        isMouthOpened = false;
-        lion.setImageResource(R.drawable.lion_close);
-    }
-
     private void updateScore(ImageView imageView) {
         ++score;
         runOnUiThread(() -> {
@@ -290,6 +277,24 @@ public class Game extends AppCompatActivity implements View.OnClickListener,
         }
     }
 
+    private void setScoreToApp() {
+        int score1 = SharedValues.getInt(this, Constants.KEY_SCORE_1, 0);
+        int score2 = SharedValues.getInt(this, Constants.KEY_SCORE_2, 0);
+        int score3 = SharedValues.getInt(this, Constants.KEY_SCORE_3, 0);
+
+
+        if (score > score1) {
+            SharedValues.setInt(this, Constants.KEY_SCORE_1, score);
+            SharedValues.setInt(this, Constants.KEY_SCORE_2, score1);
+            SharedValues.setInt(this, Constants.KEY_SCORE_3, score2);
+        } else if (score > score2) {
+            SharedValues.setInt(this, Constants.KEY_SCORE_2, score);
+            SharedValues.setInt(this, Constants.KEY_SCORE_3, score2);
+        } else if (score > score3) {
+            SharedValues.setInt(this, Constants.KEY_SCORE_3, score);
+        }
+    }
+
     @Override
     public void onScoreUpdate(ImageView imageView) {
         Log.d("MY_LIS_MAIN", "HERE | onScoreUpdate");
@@ -298,24 +303,19 @@ public class Game extends AppCompatActivity implements View.OnClickListener,
 
     @Override
     public void onGameOver(ImageView imageView, boolean isItBomb) {
-
         if (isGameOver)
             return;
+
         isGameOver = true;
 
         Log.d("MY_LIS_MAIN", "HERE | onGameOver");
 
         deleteAllImageView();
         if (isItBomb) {
-            lion.setImageResource(R.drawable.lion_open);
+            //lion.setImageResource(R.drawable.lion_open);
             lionMouth.setVisibility(View.VISIBLE);
 
-            new Handler().postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    onGameOver();
-                }
-            }, 1000);
+            new Handler().postDelayed(() -> onGameOver(), 1000);
 
         } else {
             onGameOver();
@@ -332,4 +332,36 @@ public class Game extends AppCompatActivity implements View.OnClickListener,
     public void onRemove(ImageView imageView) {
         Log.d("MY_LIS_MAIN", "HERE | onRemove");
     }
+
+    @Override
+    public void onDown() {
+        if (isGameOver)
+            return;
+
+        isLongPressed = false;
+        Log.d("LISTENER", "HERE | onDown");
+        isMouthOpened = true;
+        lion.setImageResource(R.drawable.lion_open);
+    }
+
+    @Override
+    public void onUp() {
+        if (isGameOver)
+            return;
+        isLongPressed = false;
+        Log.d("LISTENER", "HERE | onUp");
+        isMouthOpened = false;
+        lion.setImageResource(R.drawable.lion_close);
+    }
+
+    @Override
+    public void onLongPress() {
+        if (isGameOver)
+            return;
+        isLongPressed = true;
+        Log.d("LISTENER", "HERE | onLongPress");
+        isMouthOpened = false;
+        lion.setImageResource(R.drawable.lion_close);
+    }
+
 }
