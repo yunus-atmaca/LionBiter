@@ -1,5 +1,6 @@
 package com.lionbiterclacclac;
 
+import android.app.Dialog;
 import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
@@ -9,20 +10,18 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.WindowManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 
 import com.lionbiterclacclac.utils.Constants;
 import com.lionbiterclacclac.utils.I18n;
-import com.lionbiterclacclac.utils.SPController;
+import com.lionbiterclacclac.utils.SPManager;
 import com.lionbiterclacclac.utils.SharedValues;
-
-import java.util.Objects;
 
 public class Settings extends DialogFragment implements View.OnClickListener {
 
@@ -44,8 +43,7 @@ public class Settings extends DialogFragment implements View.OnClickListener {
     private boolean vibroOn;
     private String lan;
 
-    SPController spController;
-
+    private SPManager spManager;
     private final SettingsListener listener;
 
     public Settings(SettingsListener listener) {
@@ -62,11 +60,19 @@ public class Settings extends DialogFragment implements View.OnClickListener {
         getDialog().getWindow().setWindowAnimations(R.style.anim_slide);
     }
 
+    @NonNull
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_DeviceDefault_NoActionBar_Fullscreen);
+    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+        return new Dialog(getActivity(), android.R.style.Theme_DeviceDefault_NoActionBar_Fullscreen) {
+            @Override
+            public void onBackPressed() {
+                spManager.play(Constants.BUTTON);
+                listener.onBack();
+                super.onBackPressed();
+            }
+        };
     }
+
 
     @Nullable
     @Override
@@ -80,7 +86,7 @@ public class Settings extends DialogFragment implements View.OnClickListener {
     }
 
     private void init() {
-        spController = SPController.getInstance(getContext());
+        spManager = SPManager.instance(getContext());
 
         root.findViewById(R.id.back).setOnClickListener(this);
         root.findViewById(R.id.lan_left).setOnClickListener(this);
@@ -130,22 +136,22 @@ public class Settings extends DialogFragment implements View.OnClickListener {
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.back) {
-            spController.play(Constants.BUTTON);
-
+            spManager.play(Constants.BUTTON);
+            listener.onBack();
             dismiss();
             onDestroy();
         } else if (view.getId() == R.id.lan_left) {
-            spController.play(Constants.BUTTON);
+            spManager.play(Constants.BUTTON);
 
             onSwitchLanguage();
         } else if (view.getId() == R.id.lan_right) {
-            spController.play(Constants.BUTTON);
+            spManager.play(Constants.BUTTON);
 
             onSwitchLanguage();
         } else if (view.getId() == R.id.soundButton) {
             soundClicked();
         } else if (view.getId() == R.id.vibroButton) {
-            spController.play(Constants.BUTTON);
+            spManager.play(Constants.BUTTON);
 
             vibroClicked();
         } else {
@@ -155,17 +161,17 @@ public class Settings extends DialogFragment implements View.OnClickListener {
 
     private void soundClicked() {
         if (soundOn) {
-            spController.setSoundOn(false);
-            spController.releaseSP();
+            spManager.setSoundOn(false);
+            spManager.setBackgroundMusic(false);
 
             soundOn = false;
             soundButton.setImageResource(R.drawable.ic_switch_off);
             soundText.setTextColor(ContextCompat.getColor(getContext(), R.color.onColor));
             soundIcon.setImageResource(R.drawable.ic_sound_off);
         } else {
-            spController = SPController.getInstance(getContext());
-            spController.setSoundOn(true);
-            spController.setBackgroundMusic(true);
+            spManager.setSoundOn(true);
+            spManager.play(Constants.BUTTON);
+            spManager.setBackgroundMusic(true);
 
             soundOn = true;
             soundButton.setImageResource(R.drawable.ic_switch_on);
@@ -201,8 +207,6 @@ public class Settings extends DialogFragment implements View.OnClickListener {
 
 
     private void onSwitchLanguage() {
-        spController.play(Constants.BUTTON);
-
         if (lan.equals(Constants.LAN_ENG)) {
             lan = Constants.LAN_RU;
             I18n.loadLanguage(getActivity(), Constants.LAN_RU);
@@ -231,5 +235,7 @@ public class Settings extends DialogFragment implements View.OnClickListener {
 
     public interface SettingsListener {
         void onLanguageChanged(String lan);
+
+        void onBack();
     }
 }

@@ -1,5 +1,6 @@
 package com.lionbiterclacclac;
 
+import android.app.Dialog;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -8,11 +9,13 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 import com.lionbiterclacclac.utils.Constants;
 import com.lionbiterclacclac.utils.SPController;
+import com.lionbiterclacclac.utils.SPManager;
 import com.lionbiterclacclac.utils.SharedValues;
 
 public class Records extends DialogFragment implements View.OnClickListener, Alert.AlertListener {
@@ -27,7 +30,12 @@ public class Records extends DialogFragment implements View.OnClickListener, Ale
     private String lan;
     private int score1, score2, score3;
 
-    SPController spController;
+    private SPManager spManager;
+    private RecordListener listener;
+
+    public Records(RecordListener listener) {
+        this.listener = listener;
+    }
 
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
@@ -39,10 +47,17 @@ public class Records extends DialogFragment implements View.OnClickListener, Ale
         getDialog().getWindow().setWindowAnimations(R.style.anim_slide);
     }
 
+    @NonNull
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setStyle(DialogFragment.STYLE_NORMAL, android.R.style.Theme_DeviceDefault_NoActionBar_Fullscreen);
+    public Dialog onCreateDialog(@Nullable Bundle savedInstanceState) {
+        return new Dialog(getActivity(), android.R.style.Theme_DeviceDefault_NoActionBar_Fullscreen) {
+            @Override
+            public void onBackPressed() {
+                spManager.play(Constants.BUTTON);
+                listener.onBack();
+                super.onBackPressed();
+            }
+        };
     }
 
     @Nullable
@@ -57,7 +72,7 @@ public class Records extends DialogFragment implements View.OnClickListener, Ale
     }
 
     private void init() {
-        spController = SPController.getInstance(getContext());
+        spManager = SPManager.instance(getContext());
 
         root.findViewById(R.id.delete).setOnClickListener(this);
         root.findViewById(R.id.backRecord).setOnClickListener(this);
@@ -87,11 +102,12 @@ public class Records extends DialogFragment implements View.OnClickListener, Ale
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.delete) {
-            spController.play(Constants.BUTTON);
+            spManager.play(Constants.BUTTON);
 
             onDeleteClick();
         } else if (view.getId() == R.id.backRecord) {
-            spController.play(Constants.BUTTON);
+            spManager.play(Constants.BUTTON);
+            this.listener.onBack();
 
             dismiss();
             onDestroy();
@@ -100,12 +116,12 @@ public class Records extends DialogFragment implements View.OnClickListener, Ale
         }
     }
 
-    private void onDeleteClick(){
+    private void onDeleteClick() {
         Alert alert = new Alert(this);
         alert.show(getChildFragmentManager(), "Alert-View");
     }
 
-    private void removeScores(){
+    private void removeScores() {
         if (getContext() == null)
             return;
 
@@ -120,8 +136,13 @@ public class Records extends DialogFragment implements View.OnClickListener, Ale
 
     @Override
     public void onModalResult(boolean res) {
-        if(res){
+        if (res) {
             removeScores();
         }
     }
+
+    public interface RecordListener {
+        void onBack();
+    }
+
 }

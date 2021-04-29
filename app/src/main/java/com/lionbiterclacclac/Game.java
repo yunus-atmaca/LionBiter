@@ -20,6 +20,7 @@ import com.lionbiterclacclac.utils.Constants;
 import com.lionbiterclacclac.utils.CreatedView;
 import com.lionbiterclacclac.utils.GestureHandler;
 import com.lionbiterclacclac.utils.SPController;
+import com.lionbiterclacclac.utils.SPManager;
 import com.lionbiterclacclac.utils.SharedValues;
 
 import java.util.ArrayList;
@@ -48,7 +49,6 @@ public class Game extends AppCompatActivity implements
     private boolean vibroOn;
     private String lan;
 
-    private SPController spController;
     private Handler handler;
     private Runnable runnable;
 
@@ -63,6 +63,10 @@ public class Game extends AppCompatActivity implements
     private boolean isGameOver;
     private int score;
 
+    private boolean onBack;
+    private boolean firstInit;
+    private SPManager spManager;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -76,8 +80,9 @@ public class Game extends AppCompatActivity implements
         root = findViewById(R.id.root);
         root.setOnTouchListener(new GestureHandler(this, this));
         handler = new Handler();
-        spController = SPController.getInstance(this);
 
+        onBack = false;
+        firstInit = true;
         isMouthOpened = false;
 
         DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -89,8 +94,6 @@ public class Game extends AppCompatActivity implements
 
         reasonablePosition = height - marginBottomPx + marginTopPx;
         toValue = height + 400;
-
-        spController = SPController.getInstance(this);
 
         lion = findViewById(R.id.lion);
         lionMouth = findViewById(R.id.lion_mouth);
@@ -118,15 +121,12 @@ public class Game extends AppCompatActivity implements
         imagesWillBeDeleted = new LinkedList<>();
 
         runnable = new Runnable() {
-            private long time = 0;
-
             @Override
             public void run() {
                 if (isGameOver)
                     return;
 
                 createViewsAndAnimations();
-                // time += 200;
                 handler.postDelayed(this, 2000);
             }
         };
@@ -210,9 +210,10 @@ public class Game extends AppCompatActivity implements
         }
     }
 
-    private void onGameOver() {
+    private void setGameOverValues() {
         try {
             setScoreToApp();
+
             lion.setImageResource(R.drawable.lion_close);
             yourScoreText.setText(getString(R.string.yourScore) + ": " + scoreText.getText());
             lion.setVisibility(View.GONE);
@@ -231,19 +232,10 @@ public class Game extends AppCompatActivity implements
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.restart) {
-            this.spController.play(Constants.BUTTON);
-
-            lion.setVisibility(View.VISIBLE);
-            scoreTable.setVisibility(View.VISIBLE);
-
-            lionMouth.setVisibility(View.INVISIBLE);
-            endGameLayout.setVisibility(View.GONE);
-            endGameLion.setVisibility(View.GONE);
-            scoreText.setText(String.valueOf(0));
-            startGame();
-
+            onRestartGame();
         } else if (view.getId() == R.id.mainmenu) {
-            this.spController.play(Constants.BUTTON);
+            spManager.play(Constants.BUTTON);
+            onBackGame();
             this.finish();
         } else {
             Log.d(TAG, "Unimplemented call");
@@ -299,10 +291,44 @@ public class Game extends AppCompatActivity implements
         }
     }
 
+    private void onRestartGame() {
+        spManager.play(Constants.BUTTON);
+
+        lion.setVisibility(View.VISIBLE);
+        scoreTable.setVisibility(View.VISIBLE);
+
+        lionMouth.setVisibility(View.INVISIBLE);
+        endGameLayout.setVisibility(View.GONE);
+        endGameLion.setVisibility(View.GONE);
+
+        scoreText.setText(String.valueOf(0));
+
+        startGame();
+    }
+
+    private void onPauseGame() {
+        isGameOver = true;
+
+        spManager.setSoundOn(false);
+        spManager.setBackgroundMusic(false);
+
+        deleteAllImageView();
+
+        setGameOverValues();
+    }
+
+    private void onBackGame() {
+        isGameOver = true;
+
+        handler.removeCallbacksAndMessages(null);
+        handler.removeCallbacks(runnable);
+
+        onBack = true;
+    }
+
     @Override
     public void onScoreUpdate(ImageView imageView) {
-        Log.d("MY_LIS_MAIN", "HERE | onScoreUpdate");
-        this.spController.play(Constants.BITE_BALL);
+        spManager.play(Constants.BITE_BALL);
         updateScore(imageView);
     }
 
@@ -313,29 +339,26 @@ public class Game extends AppCompatActivity implements
 
         isGameOver = true;
 
-        Log.d("MY_LIS_MAIN", "HERE | onGameOver");
-        this.spController.play(Constants.GAME_OVER);
+        spManager.play(Constants.GAME_OVER);
         deleteAllImageView();
         if (isItBomb) {
-            //lion.setImageResource(R.drawable.lion_open);
             lionMouth.setVisibility(View.VISIBLE);
 
-            new Handler().postDelayed(() -> onGameOver(), 1000);
+            new Handler().postDelayed(() -> setGameOverValues(), 1000);
 
         } else {
-            onGameOver();
+            setGameOverValues();
         }
     }
 
     @Override
     public void onBounceBomb(ImageView imageView) {
-        Log.d("MY_LIS_MAIN", "HERE | onBounceBomb");
         bounceTheView(imageView);
     }
 
     @Override
     public void onRemove(ImageView imageView) {
-        Log.d("MY_LIS_MAIN", "HERE | onRemove");
+
     }
 
     @Override
@@ -344,8 +367,8 @@ public class Game extends AppCompatActivity implements
             return;
 
         isLongPressed = false;
-        Log.d("LISTENER", "HERE | onDown");
         isMouthOpened = true;
+
         lion.setImageResource(R.drawable.lion_open);
     }
 
@@ -353,22 +376,69 @@ public class Game extends AppCompatActivity implements
     public void onUp() {
         if (isGameOver)
             return;
+
         isLongPressed = false;
-        Log.d("LISTENER", "HERE | onUp");
         isMouthOpened = false;
+
         lion.setImageResource(R.drawable.lion_close);
-        this.spController.play(Constants.CLOSE_MOUTH);
+        spManager.play(Constants.CLOSE_MOUTH);
     }
 
     @Override
     public void onLongPress() {
         if (isGameOver)
             return;
+
         isLongPressed = true;
-        Log.d("LISTENER", "HERE | onLongPress");
         isMouthOpened = false;
+
         lion.setImageResource(R.drawable.lion_close);
-        this.spController.play(Constants.CLOSE_MOUTH);
+        spManager.play(Constants.CLOSE_MOUTH);
     }
 
+    @Override
+    public void onBackPressed() {
+        onBackGame();
+        super.onBackPressed();
+    }
+
+    @Override
+    protected void onResume() {
+        onBack = false;
+
+        if (firstInit) {
+            firstInit = false;
+            spManager = SPManager.instance(this);
+        } else {
+            boolean music = SharedValues.getBoolean(this, Constants.KEY_SOUND, true);
+            spManager.setSoundOn(music);
+            spManager.setBackgroundMusic(music);
+        }
+
+        super.onResume();
+    }
+
+    @Override
+    protected void onPause() {
+        if (onBack) {
+
+        } else {
+            onPauseGame();
+        }
+
+        super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        if (onBack) {
+            super.onDestroy();
+            return;
+        }
+
+        spManager.releaseSP();
+        super.onDestroy();
+        finishAffinity();
+        System.exit(0);
+    }
 }

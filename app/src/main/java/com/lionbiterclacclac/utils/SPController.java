@@ -55,7 +55,7 @@ public class SPController implements SoundPool.OnLoadCompleteListener {
         biteBall = sp.load(context, Constants.BITE_BALL, 1);
         gameOver = sp.load(context, Constants.GAME_OVER, 1);
         closeMouth = sp.load(context, Constants.CLOSE_MOUTH, 1);
-        background = sp.load(context, Constants.BACKGROUND, 1);
+        background = sp.load(context, Constants.BACKGROUND, 2);
     }
 
     public void setBackgroundMusic(boolean music) {

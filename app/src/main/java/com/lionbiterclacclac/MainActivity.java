@@ -11,24 +11,22 @@ import android.widget.ImageView;
 import com.lionbiterclacclac.utils.Constants;
 import com.lionbiterclacclac.utils.I18n;
 import com.lionbiterclacclac.utils.SPController;
+import com.lionbiterclacclac.utils.SPManager;
 import com.lionbiterclacclac.utils.SharedValues;
-import com.lionbiterclacclac.utils.SystemUtils;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener, Settings.SettingsListener {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener, Settings.SettingsListener, Records.RecordListener {
 
     private static final String TAG = "Main-Activity";
 
     private ImageView play, settings, records;
 
     private boolean onStartGame;
-
-    private SPController spController;
+    private SPManager spManager;
     private boolean firstInit;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        //SystemUtils.enableFullScreenUI(this);
         setContentView(R.layout.activity_main);
 
         init();
@@ -68,29 +66,39 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void onPlayClick() {
-        spController.play(Constants.BUTTON);
+        setButtonsClickable(false);
+        spManager.play(Constants.BUTTON);
         onStartGame = true;
+
         Intent myIntent = new Intent(MainActivity.this, Game.class);
         MainActivity.this.startActivity(myIntent);
     }
 
     private void onSettingsClick() {
-        spController.play(Constants.BUTTON);
+        setButtonsClickable(false);
+        spManager.play(Constants.BUTTON);
 
         Settings settingsFrag = new Settings(this);
         settingsFrag.show(getSupportFragmentManager(), "Setting-Page");
     }
 
     private void onRecordClick() {
-        spController.play(Constants.BUTTON);
+        setButtonsClickable(false);
+        spManager.play(Constants.BUTTON);
 
-        Records records = new Records();
+        Records records = new Records(this);
         records.show(getSupportFragmentManager(), "Record-Page");
+    }
+
+    private void setButtonsClickable(boolean clickable) {
+        play.setClickable(clickable);
+        settings.setClickable(clickable);
+        records.setClickable(clickable);
     }
 
     @Override
     protected void onDestroy() {
-        spController.releaseSP();
+        spManager.releaseSP();
         super.onDestroy();
 
         finishAndRemoveTask();
@@ -99,27 +107,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     protected void onPause() {
-        if (onStartGame) {
-
-        } else {
-            spController.releaseSP();
+        if (!onStartGame) {
+            spManager.setSoundOn(false);
+            spManager.setBackgroundMusic(false);
         }
-
         super.onPause();
     }
 
     @Override
     protected void onResume() {
         onStartGame = false;
+        setButtonsClickable(true);
 
         if (firstInit) {
             firstInit = false;
-            spController = SPController.getInstance(getApplicationContext());
+            spManager = SPManager.instance(getApplicationContext());
         } else {
-            boolean music = SharedValues.getBoolean(this, Constants.KEY_SOUND, true);
-            spController.setBackgroundMusic(music);
+            boolean soundOn = SharedValues.getBoolean(this, Constants.KEY_SOUND, true);
+            spManager.setSoundOn(soundOn);
+            spManager.setBackgroundMusic(soundOn);
         }
-
         super.onResume();
     }
 
@@ -128,5 +135,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         play.setImageResource(lan.equals(Constants.LAN_ENG) ? R.drawable.play : R.drawable.play_ru);
         settings.setImageResource(lan.equals(Constants.LAN_ENG) ? R.drawable.settings : R.drawable.settings_ru);
         records.setImageResource(lan.equals(Constants.LAN_ENG) ? R.drawable.records : R.drawable.records_ru);
+    }
+
+    @Override
+    public void onBack() {
+        setButtonsClickable(true);
     }
 }
