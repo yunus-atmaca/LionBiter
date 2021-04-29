@@ -76,6 +76,7 @@ public class Game extends AppCompatActivity implements
         root = findViewById(R.id.root);
         root.setOnTouchListener(new GestureHandler(this, this));
         handler = new Handler();
+        spController = SPController.getInstance(this);
 
         isMouthOpened = false;
 
@@ -230,6 +231,8 @@ public class Game extends AppCompatActivity implements
     @Override
     public void onClick(View view) {
         if (view.getId() == R.id.restart) {
+            this.spController.play(Constants.BUTTON);
+
             lion.setVisibility(View.VISIBLE);
             scoreTable.setVisibility(View.VISIBLE);
 
@@ -240,6 +243,7 @@ public class Game extends AppCompatActivity implements
             startGame();
 
         } else if (view.getId() == R.id.mainmenu) {
+            this.spController.play(Constants.BUTTON);
             this.finish();
         } else {
             Log.d(TAG, "Unimplemented call");
@@ -298,6 +302,7 @@ public class Game extends AppCompatActivity implements
     @Override
     public void onScoreUpdate(ImageView imageView) {
         Log.d("MY_LIS_MAIN", "HERE | onScoreUpdate");
+        this.spController.play(Constants.BITE_BALL);
         updateScore(imageView);
     }
 
@@ -309,7 +314,7 @@ public class Game extends AppCompatActivity implements
         isGameOver = true;
 
         Log.d("MY_LIS_MAIN", "HERE | onGameOver");
-
+        this.spController.play(Constants.GAME_OVER);
         deleteAllImageView();
         if (isItBomb) {
             //lion.setImageResource(R.drawable.lion_open);
@@ -352,6 +357,7 @@ public class Game extends AppCompatActivity implements
         Log.d("LISTENER", "HERE | onUp");
         isMouthOpened = false;
         lion.setImageResource(R.drawable.lion_close);
+        this.spController.play(Constants.CLOSE_MOUTH);
     }
 
     @Override
@@ -362,6 +368,7 @@ public class Game extends AppCompatActivity implements
         Log.d("LISTENER", "HERE | onLongPress");
         isMouthOpened = false;
         lion.setImageResource(R.drawable.lion_close);
+        this.spController.play(Constants.CLOSE_MOUTH);
     }
 
 }
