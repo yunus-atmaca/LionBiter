@@ -67,6 +67,9 @@ public class Game extends AppCompatActivity implements
     private boolean firstInit;
     private SPManager spManager;
 
+    private int interval = 2000;
+    private int animDuration = 3000;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -127,11 +130,31 @@ public class Game extends AppCompatActivity implements
                     return;
 
                 createViewsAndAnimations();
-                handler.postDelayed(this, 2000);
+                handler.postDelayed(this, getNewIntervalTime());
             }
         };
 
-        handler.postDelayed(runnable, 2000);
+        handler.postDelayed(runnable, getNewIntervalTime());
+    }
+
+    private int getNewIntervalTime() {
+        int minInterval = 700;
+
+        if (interval > 1000) {
+            interval -= 75;
+        }
+
+        int random = new Random().nextInt(interval - minInterval);
+
+        return minInterval + random;
+    }
+
+    private int getNewAnimTime() {
+        if(animDuration > 1250){
+            animDuration -= 100;
+        }
+
+        return animDuration;
     }
 
     private float convertDpToPixel(float dp) {
@@ -144,7 +167,7 @@ public class Game extends AppCompatActivity implements
 
         ObjectAnimator animation = ObjectAnimator.ofFloat(createdView.getView(), "translationY", toValue);
         animation.addListener(listener);
-        animation.setDuration(3000);
+        animation.setDuration(getNewAnimTime());
         animation.addUpdateListener(listener);
         animation.start();
     }
@@ -319,6 +342,8 @@ public class Game extends AppCompatActivity implements
 
     private void onBackGame() {
         isGameOver = true;
+
+        spManager.stop(Constants.GAME_OVER);
 
         handler.removeCallbacksAndMessages(null);
         handler.removeCallbacks(runnable);
