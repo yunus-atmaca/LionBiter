@@ -8,9 +8,9 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
+import com.lionbiterclacclac.utils.BackgroundMusicHelper;
 import com.lionbiterclacclac.utils.Constants;
 import com.lionbiterclacclac.utils.I18n;
-import com.lionbiterclacclac.utils.SPController;
 import com.lionbiterclacclac.utils.SPManager;
 import com.lionbiterclacclac.utils.SharedValues;
 
@@ -23,6 +23,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private boolean onStartGame;
     private SPManager spManager;
     private boolean firstInit;
+
+    private BackgroundMusicHelper musicHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,6 +100,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     protected void onDestroy() {
+        musicHelper.release();
+
         spManager.releaseSP();
         super.onDestroy();
 
@@ -108,8 +112,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onPause() {
         if (!onStartGame) {
-            spManager.setSoundOn(false);
-            spManager.setBackgroundMusic(false);
+            musicHelper.pause();
         }
         super.onPause();
     }
@@ -121,11 +124,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         if (firstInit) {
             firstInit = false;
+            musicHelper = BackgroundMusicHelper.getIns(getApplicationContext());
             spManager = SPManager.instance(getApplicationContext());
         } else {
             boolean soundOn = SharedValues.getBoolean(this, Constants.KEY_SOUND, true);
+
+            musicHelper.setSound(soundOn);
+            musicHelper.start();
             spManager.setSoundOn(soundOn);
-            spManager.setBackgroundMusic(soundOn);
         }
         super.onResume();
     }

@@ -13,7 +13,7 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 import com.lionbiterclacclac.utils.Constants;
-import com.lionbiterclacclac.utils.SPController;
+import com.lionbiterclacclac.utils.SPManager;
 
 import java.util.Objects;
 
@@ -22,11 +22,11 @@ public class Alert extends DialogFragment implements View.OnClickListener {
     private static final String TAG = "Alert-Fragment";
 
     private final AlertListener listener;
-    SPController spController;
+    private SPManager spManager;
 
     public Alert(AlertListener listener) {
         this.listener = listener;
-        spController = SPController.getInstance(getContext());
+        spManager = SPManager.instance(getContext());
     }
 
     @Override
@@ -71,7 +71,7 @@ public class Alert extends DialogFragment implements View.OnClickListener {
     }
 
     private void yesClicked() {
-        spController.play(Constants.BUTTON);
+        spManager.play(Constants.BUTTON);
 
         listener.onModalResult(true);
 
@@ -80,7 +80,7 @@ public class Alert extends DialogFragment implements View.OnClickListener {
     }
 
     private void noClicked() {
-        spController.play(Constants.BUTTON);
+        spManager.play(Constants.BUTTON);
 
         listener.onModalResult(false);
 

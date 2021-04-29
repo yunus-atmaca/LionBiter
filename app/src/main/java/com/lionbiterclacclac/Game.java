@@ -4,8 +4,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.LinearLayoutCompat;
 
 import android.animation.ObjectAnimator;
+import android.content.Context;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.VibrationEffect;
+import android.os.Vibrator;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
@@ -16,10 +20,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.lionbiterclacclac.utils.AnimUpdateListener;
+import com.lionbiterclacclac.utils.BackgroundMusicHelper;
 import com.lionbiterclacclac.utils.Constants;
 import com.lionbiterclacclac.utils.CreatedView;
 import com.lionbiterclacclac.utils.GestureHandler;
-import com.lionbiterclacclac.utils.SPController;
 import com.lionbiterclacclac.utils.SPManager;
 import com.lionbiterclacclac.utils.SharedValues;
 
@@ -66,6 +70,7 @@ public class Game extends AppCompatActivity implements
     private boolean onBack;
     private boolean firstInit;
     private SPManager spManager;
+    private BackgroundMusicHelper musicHelper;
 
     private int interval = 2000;
     private int animDuration = 3000;
@@ -150,7 +155,7 @@ public class Game extends AppCompatActivity implements
     }
 
     private int getNewAnimTime() {
-        if(animDuration > 1250){
+        if (animDuration > 1250) {
             animDuration -= 100;
         }
 
@@ -332,8 +337,7 @@ public class Game extends AppCompatActivity implements
     private void onPauseGame() {
         isGameOver = true;
 
-        spManager.setSoundOn(false);
-        spManager.setBackgroundMusic(false);
+        musicHelper.pause();
 
         deleteAllImageView();
 
@@ -351,9 +355,21 @@ public class Game extends AppCompatActivity implements
         onBack = true;
     }
 
+    private void vibrate(int sec) {
+        Vibrator v = (Vibrator) getSystemService(Context.VIBRATOR_SERVICE);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            v.vibrate(VibrationEffect.createOneShot(sec, VibrationEffect.DEFAULT_AMPLITUDE));
+        } else {
+            v.vibrate(sec);
+        }
+    }
+
     @Override
     public void onScoreUpdate(ImageView imageView) {
         spManager.play(Constants.BITE_BALL);
+        if (vibroOn) {
+            vibrate(100);
+        }
         updateScore(imageView);
     }
 
@@ -366,6 +382,11 @@ public class Game extends AppCompatActivity implements
 
         spManager.play(Constants.GAME_OVER);
         deleteAllImageView();
+
+        if (vibroOn) {
+            vibrate(1000);
+        }
+
         if (isItBomb) {
             lionMouth.setVisibility(View.VISIBLE);
 
@@ -378,6 +399,9 @@ public class Game extends AppCompatActivity implements
 
     @Override
     public void onBounceBomb(ImageView imageView) {
+        if (vibroOn) {
+            vibrate(100);
+        }
         bounceTheView(imageView);
     }
 
@@ -433,11 +457,13 @@ public class Game extends AppCompatActivity implements
 
         if (firstInit) {
             firstInit = false;
+            musicHelper = BackgroundMusicHelper.getIns(this);
             spManager = SPManager.instance(this);
         } else {
             boolean music = SharedValues.getBoolean(this, Constants.KEY_SOUND, true);
+            musicHelper.setSound(music);
+            musicHelper.start();
             spManager.setSoundOn(music);
-            spManager.setBackgroundMusic(music);
         }
 
         super.onResume();
@@ -460,7 +486,7 @@ public class Game extends AppCompatActivity implements
             super.onDestroy();
             return;
         }
-
+        musicHelper.release();
         spManager.releaseSP();
         super.onDestroy();
         finishAffinity();

@@ -14,7 +14,6 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 import com.lionbiterclacclac.utils.Constants;
-import com.lionbiterclacclac.utils.SPController;
 import com.lionbiterclacclac.utils.SPManager;
 import com.lionbiterclacclac.utils.SharedValues;
 

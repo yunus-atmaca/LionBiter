@@ -18,6 +18,7 @@ import androidx.annotation.Nullable;
 import androidx.core.content.ContextCompat;
 import androidx.fragment.app.DialogFragment;
 
+import com.lionbiterclacclac.utils.BackgroundMusicHelper;
 import com.lionbiterclacclac.utils.Constants;
 import com.lionbiterclacclac.utils.I18n;
 import com.lionbiterclacclac.utils.SPManager;
@@ -44,6 +45,7 @@ public class Settings extends DialogFragment implements View.OnClickListener {
     private String lan;
 
     private SPManager spManager;
+    private BackgroundMusicHelper musicHelper;
     private final SettingsListener listener;
 
     public Settings(SettingsListener listener) {
@@ -87,6 +89,7 @@ public class Settings extends DialogFragment implements View.OnClickListener {
 
     private void init() {
         spManager = SPManager.instance(getContext());
+        musicHelper = BackgroundMusicHelper.getIns(getContext());
 
         root.findViewById(R.id.back).setOnClickListener(this);
         root.findViewById(R.id.lan_left).setOnClickListener(this);
@@ -162,7 +165,7 @@ public class Settings extends DialogFragment implements View.OnClickListener {
     private void soundClicked() {
         if (soundOn) {
             spManager.setSoundOn(false);
-            spManager.setBackgroundMusic(false);
+            musicHelper.release();
 
             soundOn = false;
             soundButton.setImageResource(R.drawable.ic_switch_off);
@@ -171,7 +174,7 @@ public class Settings extends DialogFragment implements View.OnClickListener {
         } else {
             spManager.setSoundOn(true);
             spManager.play(Constants.BUTTON);
-            spManager.setBackgroundMusic(true);
+            musicHelper.start();
 
             soundOn = true;
             soundButton.setImageResource(R.drawable.ic_switch_on);
