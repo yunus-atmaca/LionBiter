@@ -72,8 +72,8 @@ public class Game extends AppCompatActivity implements
     private SPManager spManager;
     private BackgroundMusicHelper musicHelper;
 
-    private int interval = 2000;
-    private int animDuration = 3000;
+    private int interval = 5000;
+    private int animDuration = 5000;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -139,7 +139,7 @@ public class Game extends AppCompatActivity implements
             }
         };
 
-        handler.postDelayed(runnable, getNewIntervalTime());
+        handler.postDelayed(runnable, 1500);
     }
 
     private int getNewIntervalTime() {
